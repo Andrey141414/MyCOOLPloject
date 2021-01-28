@@ -1,4 +1,4 @@
-#include<GL/glut.h>
+п»ї#include<GL/glut.h>
 #include<stdio.h>
 #include <vector>
 #include <math.h>
@@ -12,14 +12,15 @@ float Lent = 800;
 //int xPers = -Wide + 20;
 //int yPers = -Lent + 20;
 bool down = false;
-float Fi = 7;
-void init(void);//Задание цвета
+float Fi = 0;
+void init(void);//Р—Р°РґР°РЅРёРµ С†РІРµС‚Р°
 void person_display();
 void Skeyboard(int key, int x, int y);
 int Editional = 1;
 ofstream Map;
+float dx = 0, dy = 0;
 int xMap = -Wide, yMap = -Lent;
-//карта
+//РєР°СЂС‚Р°
 int reb = 250;
 float radAngel(float x1, float y1, float x2, float y2);
 float Modul(float xCoord, float yCoord);
@@ -222,7 +223,7 @@ void Map::build_other_lines()
 
 void Map::Read()
 {
-	ifstream f("FILE.txt"); // открыли файл для чтения
+	ifstream f("FILE.txt"); // РѕС‚РєСЂС‹Р»Рё С„Р°Р№Р» РґР»СЏ С‡С‚РµРЅРёСЏ
 	f >> Num;
 	for (int i = 0; i < Num; i++)
 	{
@@ -232,12 +233,12 @@ void Map::Read()
 		f >> Other[i].x2Line;
 		f >> Other[i].y2Line;
 	}
-	f.close(); // закрываем файл
+	f.close(); // Р·Р°РєСЂС‹РІР°РµРј С„Р°Р№Р»
 }
 
 void Map::Enter()
 {
-	ofstream fin("FILE.txt", ios_base::trunc); // открыли файл для записи
+	ofstream fin("FILE.txt", ios_base::trunc); // РѕС‚РєСЂС‹Р»Рё С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё
 	fin << Num;
 	fin << " ";
 	for (int i = 0; i < Num; i++)
@@ -251,7 +252,7 @@ void Map::Enter()
 		fin << Other[i].y2Line;
 		fin << " ";
 	}
-	fin.close(); // закрываем файл
+	fin.close(); // Р·Р°РєСЂС‹РІР°РµРј С„Р°Р№Р»
 }
 void Map::PersonDisplay()
 {
@@ -275,13 +276,15 @@ void Map::PersonDisplay()
 
 
 	float alpha = 3.1415 / 2;
+	float Player_angle = alpha / 2;
+
 
 	float step = 2 * Wide / (alpha / 0.01);
 	for (float i = 0; i < alpha; i += 0.01)
 	{
 
-		float xProect = cosf(rFi + i) * r;
-		float yProect = sinf(rFi + i) * r;
+		float xProect = cosf(rFi - i) * r;
+		float yProect = sinf(rFi - i) * r;
 
 
 
@@ -373,14 +376,14 @@ void Map::PersonDisplay()
 			glVertex2d(xPr, yPr);
 
 
-			/*glClear(GL_COLOR_BUFFER_BIT);
-			glColor3f(0.9, 1, 0.7);*/
-			/*glLineWidth(1);
+			glClear(GL_COLOR_BUFFER_BIT);
+			glColor3f(0.9, 1, 0.7);
+			glLineWidth(1);
 
-			glVertex2d(-Wide + step, Lent * 10 * (fabs(1 / (Modul(xPr - client.xPers, yPr - client.yPers)))));
-			glVertex2d(-Wide + step, -Lent * 10 * (fabs(1 / (Modul(xPr - client.xPers, yPr - client.yPers)))));
+			glVertex2d(-Wide + step, Lent * 10 * (fabs(1 / (Modul(xPr - client.xPers, yPr - client.yPers))))/cos(Player_angle - i));
+			glVertex2d(-Wide + step, -Lent * 10 * (fabs(1 / (Modul(xPr - client.xPers, yPr - client.yPers)))) / cos(Player_angle - i));
 
-			step += 2 * Wide / (alpha / 0.01);*/
+			step += 2 * Wide / (alpha / 0.01);
 		}
 
 	}
@@ -407,15 +410,22 @@ void Map::PersonDisplay()
 
 
 
-
+float Player_Angle()
+{
+	float alpha = 3.1415 / 2;
+	float ang = (alpha / 2) + (Fi * 3.1415) / 180;
+	return ang;
+};
 
 void init()
 {
-	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);//цвет экрана
+	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);//С†РІРµС‚ СЌРєСЂР°РЅР°
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(-Wide, Wide, Lent, -Lent, 200, -200);
 	glMatrixMode(GL_MODELVIEW);
+	dx = cosf(Player_Angle());
+	dy = sinf(Player_Angle());
 
 }
 
@@ -430,7 +440,7 @@ float radAngel(float x1, float y1, float x2, float y2)
 
 
 }
-//модуль вектора
+//РјРѕРґСѓР»СЊ РІРµРєС‚РѕСЂР°
 float Modul(float xCoord, float yCoord)
 {
 	float Mod;
@@ -680,6 +690,9 @@ void Skeyboard(int key, int x, int y)
 }
 void playerMove(int key, int x, int y)
 {
+
+
+	
 	float chek21;
 	Lines P[4];
 	float delt = 1;
@@ -720,7 +733,8 @@ void playerMove(int key, int x, int y)
 	}
 
 
-	int spead = 2;
+	int spead = 10;
+	
 	switch (key)
 	{
 	case GLUT_KEY_LEFT: {
@@ -730,14 +744,19 @@ void playerMove(int key, int x, int y)
 
 		}
 		else {
-			MAIN_MAP.client.xPers -= spead;
+			MAIN_MAP.client.xPers -= spead ;
 		}
 	}; break;
 	case GLUT_KEY_UP: { if (P[2].crossing == true) {
 
 		P[1].crossing = false;
 	}
-					  else  MAIN_MAP.client.yPers -= spead; }; break;
+					else
+	{
+		MAIN_MAP.client.xPers -= spead * dx;
+		MAIN_MAP.client.yPers -= spead * dy;
+	}
+	}; break;
 	case GLUT_KEY_RIGHT: { if (P[1].crossing == true) {
 
 		P[2].crossing = false;
@@ -748,9 +767,20 @@ void playerMove(int key, int x, int y)
 		P[3].crossing = false;
 	}
 						else MAIN_MAP.client.yPers += spead; }; break;
-	case GLUT_KEY_F1: {Fi += 2; }; break;
-	case GLUT_KEY_F2: {Fi -= 2; }; break;
+	case GLUT_KEY_F1: {Fi += 2; if (Player_Angle() > 3.1415*2) { Fi -= 360; }
+					dx = cosf(Player_Angle() + 3.1415 / 2);
+					dy = sinf(Player_Angle() + 3.1415 / 2);
+	}; break;
+	case GLUT_KEY_F2: {Fi -= 2; if (Player_Angle() < 0) { Fi += 360; } 
+					dx = cosf(Player_Angle() + 3.1415 / 2);
+					dy = sinf(Player_Angle() + 3.1415 / 2);
+	}; break;
+	case GLUT_KEY_F3: {
+		printf("%f\n", Player_Angle());
+		printf("%d    ", MAIN_MAP.client.xPers);
+		printf("%d\n", MAIN_MAP.client.yPers);
 
+	}; break;
 	}
 }
 int main(int argc, char* argv[])
@@ -769,7 +799,7 @@ int main(int argc, char* argv[])
 	printf("%f\t%f", a,b);*/
 	
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA); /*Включаем двойную буферизацию и четырехкомпонентный цвет*/
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA); /*Р’РєР»СЋС‡Р°РµРј РґРІРѕР№РЅСѓСЋ Р±СѓС„РµСЂРёР·Р°С†РёСЋ Рё С‡РµС‚С‹СЂРµС…РєРѕРјРїРѕРЅРµРЅС‚РЅС‹Р№ С†РІРµС‚*/
 	glutInitWindowSize(Wide, Lent);
 	glutCreateWindow("My COOL Project");
 
