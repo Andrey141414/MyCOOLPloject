@@ -1,20 +1,23 @@
-﻿#include<GL/glut.h>
+﻿#define  _CRT_SECURE_NO_WARNINGS
+#include<GL/glut.h>
 #include<stdio.h>
 #include <vector>
 #include <math.h>
 #include<locale.h>
 #include<windows.h>
 #include<fstream>
+#include<iostream>
+
 using namespace std;
+
 int x = 100, y = 100, z = 100;
 float Wide = 800;
 float Lent = 800;
 //int xPers = -Wide + 20;
 //int yPers = -Lent + 20;
 bool down = false;
-float Fi = 0;
+float Fi = 5;
 void init(void);//Задание цвета
-void person_display();
 void Skeyboard(int key, int x, int y);
 int Editional = 1;
 ofstream Map;
@@ -189,7 +192,6 @@ public:
 	int Num = 0;
 	User client;
 	
-	void build_foundation(int xst,int yst, int reb);
 	void build_other_lines();
 	void save_line(Lines line);
 	void Enter();
@@ -197,15 +199,7 @@ public:
 	void PersonDisplay();
 }MAIN_MAP;
 
-void Map::build_foundation(int xst,int yst, int reb)
-{
-	Lines line;
-	glColor3f(1.0, 1.0, 0.9);
-	line.build_new_line(xst, yst,xst+reb,yst);
-	line.build_new_line(xst, yst, xst, yst+reb);
-	line.build_new_line(xst+reb, yst+reb, xst + reb, yst);
-	line.build_new_line(xst+reb, yst+reb, xst , yst+reb);
-}
+
 void Map::save_line(Lines line)
 {
 	Other[Num] = line;
@@ -256,19 +250,44 @@ void Map::Enter()
 }
 void Map::PersonDisplay()
 {
+
+
+	///Карта в углу
+	Point center;
+	center.xPoint = -600;
+	center.yPoint = -600;
+
+	Lines buff[100];
+
+	for (int i = 0; i < MAIN_MAP.Num; i++)
+	{
+
+		buff[i].x1Line = (MAIN_MAP.Other[i].x1Line / 4) + center.xPoint;
+		buff[i].y1Line = (MAIN_MAP.Other[i].y1Line / 4) + center.yPoint;
+		buff[i].x2Line = (MAIN_MAP.Other[i].x2Line / 4) + center.xPoint;
+		buff[i].y2Line = (MAIN_MAP.Other[i].y2Line / 4) + center.yPoint;
+	}
+
+	for (int i = 0; i < MAIN_MAP.Num; i++)
+	{
+		buff[i].build_new_line(buff[i].x1Line, buff[i].y1Line, buff[i].x2Line, buff[i].y2Line);
+	}
+
+	//Точка на карте
 	glPointSize(10);
 	glBegin(GL_POINTS);
-	glColor3f(1.0, 0.1, 1.0);
-	glVertex2d(client.xPers, client.yPers);
+	glColor3f(1.0, 0.4, 1.0);
+	glVertex2d(client.xPers / 4 + center.xPoint, client.yPers / 4 + center.yPoint);
 	glEnd();
 
 
 
 
 
-	glColor3f(0.7, 0.5, 0.5);
+	glColor3f(1.0, 1.0, 1.0);
 	glBegin(GL_LINES);
-	int r = 700;
+	int r = 800;
+	int rStrich = 500;
 	float rFi = 3.1415 / 180 * Fi;
 
 
@@ -330,8 +349,8 @@ void Map::PersonDisplay()
 
 		if (result == false)
 		{
-			glVertex2d(client.xPers, client.yPers);
-			glVertex2d(client.xPers + xProect, client.yPers + yProect);
+			glVertex2d(client.xPers / 4 + center.xPoint, client.yPers / 4 + center.yPoint);
+			glVertex2d((client.xPers + xProect) / 4 + center.xPoint, (client.yPers + yProect) / 4 + center.yPoint);
 		}
 		else
 		{
@@ -372,18 +391,18 @@ void Map::PersonDisplay()
 			float Z2 = radAngel(xProect, yProect, buff.x2Line - client.xPers, buff.y2Line - client.yPers);
 			float xPr = buff.x1Line + (buff.x2Line - buff.x1Line) * (fabs(Z1) / fabs(Z2 - Z1));
 			float yPr = buff.y1Line + (buff.y2Line - buff.y1Line) * (fabs(Z1) / fabs(Z2 - Z1));
-			glVertex2d(client.xPers, client.yPers);
-			glVertex2d(xPr, yPr);
+			glVertex2d(client.xPers / 4 + center.xPoint, client.yPers / 4 + center.yPoint);
+			glVertex2d(xPr / 4 + center.xPoint, yPr / 4 + center.xPoint);
 
 
 			glClear(GL_COLOR_BUFFER_BIT);
-			glColor3f(0.9, 1, 0.7);
+			glColor3f(1.0, 1.0, 1.0);
 			glLineWidth(1);
 
-			glVertex2d(-Wide + step, Lent * 10 * (fabs(1 / (Modul(xPr - client.xPers, yPr - client.yPers))))/cos(Player_angle - i));
-			glVertex2d(-Wide + step, -Lent * 10 * (fabs(1 / (Modul(xPr - client.xPers, yPr - client.yPers)))) / cos(Player_angle - i));
+			glVertex2d(-Wide + step, Lent * 40 * (fabs(1 / (Modul(xPr - client.xPers, yPr - client.yPers))))/cos(Player_angle - i));
+			glVertex2d(-Wide + step, -Lent * 40 * (fabs(1 / (Modul(xPr - client.xPers, yPr - client.yPers)))) / cos(Player_angle - i));
 
-			step += 2 * Wide / (alpha / 0.01);
+			step += 1.9 * Wide / (alpha / 0.01);
 		}
 
 	}
@@ -419,13 +438,13 @@ float Player_Angle()
 
 void init()
 {
-	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);//цвет экрана
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);//цвет экрана
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(-Wide, Wide, Lent, -Lent, 200, -200);
 	glMatrixMode(GL_MODELVIEW);
-	dx = cosf(Player_Angle());
-	dy = sinf(Player_Angle());
+	dx = cosf(Player_Angle() + 3.1415 / 2);
+	dy = sinf(Player_Angle() + 3.1415 / 2);
 
 }
 
@@ -455,8 +474,6 @@ void reviewMap()
 	glColor3f(1.0, 0.0, 0.1);
 	MAIN_MAP.Current_Line.build_new_line(MAIN_MAP.Current_Line.x1Line, MAIN_MAP.Current_Line.y1Line, MAIN_MAP.Current_Line.x2Line, MAIN_MAP.Current_Line.y2Line);
 	glColor3f(1.0, 1.0, 0.9);
-	MAIN_MAP.build_foundation(MAIN_MAP.xStart, MAIN_MAP.yStart, Wide);
-	MAIN_MAP.build_other_lines();
 	MAIN_MAP.PersonDisplay();
 
 
@@ -469,7 +486,7 @@ void MapDisplay()
 	glColor3f(1.0, 0.0, 0.1);
 	MAIN_MAP.Current_Line.build_new_line(MAIN_MAP.Current_Line.x1Line, MAIN_MAP.Current_Line.y1Line, MAIN_MAP.Current_Line.x2Line, MAIN_MAP.Current_Line.y2Line);
 	glColor3f(1.0, 1.0, 0.9);
-	MAIN_MAP.build_foundation(MAIN_MAP.xStart, MAIN_MAP.yStart, Wide);
+	//MAIN_MAP.build_foundation(MAIN_MAP.xStart, MAIN_MAP.yStart, Wide);
 	MAIN_MAP.build_other_lines();
 	
 	
@@ -477,6 +494,31 @@ void MapDisplay()
 	glutSwapBuffers();
 }
 
+void inAngleMapDisplay()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	Point center;
+	center.xPoint = -600;
+	center.yPoint = -600;
+
+	Lines buff[100];
+
+	for (int i = 0; i < MAIN_MAP.Num; i++)
+	{
+		
+		buff[i].x1Line = (MAIN_MAP.Other[i].x1Line / 4) + center.xPoint;
+		buff[i].y1Line = (MAIN_MAP.Other[i].y1Line / 4) + center.yPoint;
+		buff[i].x2Line = (MAIN_MAP.Other[i].x2Line / 4) + center.xPoint;
+		buff[i].y2Line = (MAIN_MAP.Other[i].y2Line / 4) + center.yPoint;
+	}
+	
+	for (int i = 0; i < MAIN_MAP.Num; i++)
+	{
+		buff[i].build_new_line(buff[i].x1Line, buff[i].y1Line, buff[i].x2Line, buff[i].y2Line);
+	}
+	glutSwapBuffers();
+
+}
 
 
 int index = 0;
@@ -508,7 +550,7 @@ void EditDisplay()
 		}
 		
 	}
-	MAIN_MAP.build_foundation(MAIN_MAP.xStart, MAIN_MAP.yStart, Wide);
+	//MAIN_MAP.build_foundation(MAIN_MAP.xStart, MAIN_MAP.yStart, Wide);
 
 
 	glutSwapBuffers();
@@ -603,7 +645,9 @@ void CreateMainMenu(int A)
 		glutSpecialFunc(playerMove);
 		init();
 	}; break;
-	case 5: {}; break;
+	case 5: {
+		glutDisplayFunc(inAngleMapDisplay);
+	}; break;
 
 	}
 }
@@ -655,11 +699,8 @@ void MenuInit ()
 	glutAddMenuEntry("Save", 2);
 	glutAddMenuEntry("All", 3);
 	glutSetMenu(mainMenu);
-	glutAddMenuEntry("1", 4);
-	glutAddMenuEntry("2", 5);
+	glutAddMenuEntry("See your proect", 4);
 	glutAddSubMenu("Edition", Editional);
-	printf("\t%d\t", Editional);
-	
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 //Animation
@@ -697,13 +738,13 @@ void playerMove(int key, int x, int y)
 	Lines P[4];
 	float delt = 1;
 	//Left
-	P[0].Init(MAIN_MAP.client.xPers, MAIN_MAP.client.yPers, MAIN_MAP.client.xPers - 10, MAIN_MAP.client.yPers);
+	P[0].Init(MAIN_MAP.client.xPers, MAIN_MAP.client.yPers, MAIN_MAP.client.xPers - 20, MAIN_MAP.client.yPers);
 	//Right
-	P[1].Init( MAIN_MAP.client.xPers,MAIN_MAP.client.yPers,MAIN_MAP.client.xPers + 10,MAIN_MAP.client.yPers );
+	P[1].Init( MAIN_MAP.client.xPers,MAIN_MAP.client.yPers,MAIN_MAP.client.xPers + 20,MAIN_MAP.client.yPers );
 	//Up
-	P[2].Init( MAIN_MAP.client.xPers,MAIN_MAP.client.yPers,MAIN_MAP.client.xPers,MAIN_MAP.client.yPers - 10 );
+	P[2].Init( MAIN_MAP.client.xPers,MAIN_MAP.client.yPers,MAIN_MAP.client.xPers,MAIN_MAP.client.yPers - 20 );
 	//Down
-	P[3].Init( MAIN_MAP.client.xPers,MAIN_MAP.client.yPers,MAIN_MAP.client.xPers,MAIN_MAP.client.yPers + 10 );
+	P[3].Init( MAIN_MAP.client.xPers,MAIN_MAP.client.yPers,MAIN_MAP.client.xPers,MAIN_MAP.client.yPers + 20 );
 	for (int i = 0; i < 4; i++)
 	{
 		float chek1;
@@ -740,15 +781,21 @@ void playerMove(int key, int x, int y)
 	case GLUT_KEY_LEFT: {
 		if (P[0].crossing == true) {
 
+			MAIN_MAP.client.xPers -= 10;
+
+
 			P[0].crossing = false;
 
 		}
 		else {
-			MAIN_MAP.client.xPers -= spead ;
+			MAIN_MAP.client.xPers += spead * cosf(Player_Angle());
+			MAIN_MAP.client.yPers += spead * sinf(Player_Angle());
 		}
 	}; break;
 	case GLUT_KEY_UP: { if (P[2].crossing == true) {
 
+		MAIN_MAP.client.xPers += spead * dx;
+		MAIN_MAP.client.yPers += spead * dy;
 		P[1].crossing = false;
 	}
 					else
@@ -761,12 +808,18 @@ void playerMove(int key, int x, int y)
 
 		P[2].crossing = false;
 	}
-						 else MAIN_MAP.client.xPers += spead; }; break;
+					   else { 
+		MAIN_MAP.client.xPers -= spead * cosf(Player_Angle()); 
+		MAIN_MAP.client.yPers -= spead * sinf(Player_Angle());
+	} }; break;
 	case GLUT_KEY_DOWN: {if (P[3].crossing == true) {
 
 		P[3].crossing = false;
 	}
-						else MAIN_MAP.client.yPers += spead; }; break;
+					  else {
+		MAIN_MAP.client.xPers += spead * dx;
+		MAIN_MAP.client.yPers += spead * dy;
+	} }; break;
 	case GLUT_KEY_F1: {Fi += 2; if (Player_Angle() > 3.1415*2) { Fi -= 360; }
 					dx = cosf(Player_Angle() + 3.1415 / 2);
 					dy = sinf(Player_Angle() + 3.1415 / 2);
@@ -775,14 +828,37 @@ void playerMove(int key, int x, int y)
 					dx = cosf(Player_Angle() + 3.1415 / 2);
 					dy = sinf(Player_Angle() + 3.1415 / 2);
 	}; break;
-	case GLUT_KEY_F3: {
-		printf("%f\n", Player_Angle());
-		printf("%d    ", MAIN_MAP.client.xPers);
-		printf("%d\n", MAIN_MAP.client.yPers);
-
-	}; break;
+	
 	}
 }
+
+void printHelp()
+{
+
+	FILE* ptr;
+	ptr = fopen("Education.txt", "r+");
+	
+	
+	//вывод содержимого построчно
+	const int N = 100;
+	fseek(ptr, 0, SEEK_SET);
+	for (int i = 0; feof(ptr) == 0;)
+	{
+
+		char str[N];
+		char* proverka;
+		//если не был прочитан ни один символ fgets возвращает NULL 
+		proverka = fgets(str, sizeof(str), ptr);
+		if (proverka != NULL)
+			printf("%s", str);
+	}
+	fclose(ptr);
+}
+
+
+
+
+
 int main(int argc, char* argv[])
 {
 	
@@ -791,12 +867,8 @@ int main(int argc, char* argv[])
 	setlocale(LC_ALL, "Rus");
 
 	
-	/*ifstream fin("FILE.txt");
-	float a = 1.1645,b;
-	fin >> a;
-	fin >> b;
-	fin.close();
-	printf("%f\t%f", a,b);*/
+	
+	printHelp();
 	
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA); /*Включаем двойную буферизацию и четырехкомпонентный цвет*/
@@ -806,7 +878,7 @@ int main(int argc, char* argv[])
 	//glViewport(0, 0, Wide, Lent);
 
 
-	
+	//Чтение координат стен из файла 
 	MAIN_MAP.Read();
 	MenuInit();
 	
